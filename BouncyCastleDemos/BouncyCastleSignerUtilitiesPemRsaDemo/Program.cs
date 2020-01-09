@@ -55,7 +55,7 @@ namespace BouncyCastleSignerUtilitiesPemRsaDemo
             signer.Init(true, GetPrivateKey(key_pem));
             signer.BlockUpdate(input, 0, input.Length);
             var signature = signer.GenerateSignature();
-            Console.WriteLine($"Signature: {Convert.ToBase64String(signature)}");
+            Console.WriteLine($"SHA-256withRSA: {Convert.ToBase64String(signature)}");
 
             signer.Reset();
             signer.Init(false, GetExtractedPublicKey(key_pem));
