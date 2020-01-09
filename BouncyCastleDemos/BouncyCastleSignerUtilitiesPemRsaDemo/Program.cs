@@ -34,18 +34,23 @@ namespace BouncyCastleSignerUtilitiesPemRsaDemo
 
         public static void Main()
         {
-            // openssl genrsa -out key.pem 2048
-            // openssl rsa -in key.pem -outform PEM -pubout -out public.pem
-
             const string s = "Hello World!";
             var input = Encoding.UTF8.GetBytes(s);
             Console.WriteLine($"Input: {s}");
 
+            // openssl genrsa -out key.pem 2048
             // This is "-----BEGIN RSA PRIVATE KEY-----",
             // and not "-----BEGIN PRIVATE KEY-----"!
+            // Note that this RSA private key contains the public key.
             var key_pem = File.ReadAllText("key.pem");
-            Console.WriteLine($"Key: {key_pem}");
+            Console.WriteLine($"RSA Private Key: {key_pem}");
 
+            // openssl rsa -in key.pem -outform PEM -pubout -out public.pem
+            // This is "-----BEGIN PUBLIC KEY-----",
+            // the extracted public key from the RSA private key.
+            var public_pem = File.ReadAllText("public.pem");
+            Console.WriteLine($"Public Key: {public_pem}");
+            
             var signer = SignerUtilities.GetSigner("SHA-256withRSA");
             signer.Init(true, GetPrivateKey(key_pem));
             signer.BlockUpdate(input, 0, input.Length);
@@ -57,10 +62,6 @@ namespace BouncyCastleSignerUtilitiesPemRsaDemo
             signer.BlockUpdate(input, 0, input.Length);
             var verified = signer.VerifySignature(signature);
             Console.WriteLine($"Verified: {verified}");
-
-            // This is "-----BEGIN PUBLIC KEY-----".
-            var public_pem = File.ReadAllText("public.pem");
-            Console.WriteLine($"Public: {public_pem}");
             
             signer.Reset();
             signer.Init(false, GetRsaPublicKey(public_pem));
