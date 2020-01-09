@@ -41,21 +41,29 @@ namespace BouncyCastleSignerUtilitiesPemRsaDemo
             var input = Encoding.UTF8.GetBytes(s);
             Console.WriteLine($"Input: {s}");
 
+            // This is "-----BEGIN RSA PRIVATE KEY-----",
+            // and not "-----BEGIN PRIVATE KEY-----"!
+            var key_pem = File.ReadAllText("key.pem");
+            Console.WriteLine($"Key: {key_pem}");
+
             var signer = SignerUtilities.GetSigner("SHA-256withRSA");
-            // This must not be "-----BEGIN PRIVATE KEY-----"!
-            signer.Init(true, GetPrivateKey(File.ReadAllText("key.pem")));
+            signer.Init(true, GetPrivateKey(key_pem));
             signer.BlockUpdate(input, 0, input.Length);
             var signature = signer.GenerateSignature();
             Console.WriteLine($"Signature: {Convert.ToBase64String(signature)}");
 
             signer.Reset();
-            signer.Init(false, GetExtractedPublicKey(File.ReadAllText("key.pem")));
+            signer.Init(false, GetExtractedPublicKey(key_pem));
             signer.BlockUpdate(input, 0, input.Length);
             var verified = signer.VerifySignature(signature);
             Console.WriteLine($"Verified: {verified}");
 
+            // This is "-----BEGIN PUBLIC KEY-----".
+            var public_pem = File.ReadAllText("public.pem");
+            Console.WriteLine($"Public: {public_pem}");
+            
             signer.Reset();
-            signer.Init(false, GetRsaPublicKey(File.ReadAllText("public.pem")));
+            signer.Init(false, GetRsaPublicKey(public_pem));
             signer.BlockUpdate(input, 0, input.Length);
             verified = signer.VerifySignature(signature);
             Console.WriteLine($"Verified: {verified}");
